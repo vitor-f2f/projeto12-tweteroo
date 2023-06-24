@@ -44,3 +44,21 @@ app.post("/tweets", (req, res) => {
     tweetList.push(newTweet);
     return res.status(200).send("OK");
 });
+
+app.get("/tweets", (req, res) => {
+    if (tweetList.length == 0) {
+        return res.status(200).send([]);
+    }
+    const lastTen = tweetList.slice(-10).reverse();
+    const lastTenAvatar = lastTen.map((tweet) => {
+        const user = userList.find((user) => user.username === tweet.username);
+        const avatar = user ? user.avatar : "";
+
+        return {
+            username: tweet.username,
+            avatar,
+            tweet: tweet.tweet,
+        };
+    });
+    return res.status(200).send(lastTenAvatar);
+});
