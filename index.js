@@ -56,45 +56,16 @@ app.get("/tweets", (req, res) => {
     if (tweetList.length == 0) {
         return res.status(200).send([]);
     }
-    const { page } = req.query;
-    const pageSize = 10;
-    const pageCount = Math.ceil(tweetList.length / pageSize);
-    const pageCurrent = page ? page : 1;
+    const lastTen = tweetList.slice(-10).reverse();
+    const lastTenAvatar = lastTen.map((tweet) => {
+        const user = userList.find((user) => user.username === tweet.username);
+        const avatar = user ? user.avatar : "";
 
-    const pageStart = (pageCurrent - 1) * pageSize;
-    const pageEnd = pageStart + pageSize;
-
-    if (pageStart >= tweetList.length) {
-        return res.status(200).send([]);
-    }
-
-    const pageTweets = tweetList
-        .slice(startIndex, endIndex)
-        .reverse()
-        .map((tweet) => {
-            const user = userList.find(
-                (user) => user.username === tweet.username
-            );
-            const avatar = user ? user.avatar : "";
-            return { username: tweet.username, avatar, tweet: tweet.tweet };
-        });
-    return res.status(200).send(pageTweets);
-});
-
-app.get("/tweets/:username", (req, res) => {
-    const { username } = req.params;
-    const userTweets = tweetList
-        .filter((tweet) => tweet.username === username)
-        .map((tweet) => {
-            const user = userList.find(
-                (user) => user.username === tweet.username
-            );
-            const avatar = user ? user.avatar : "";
-            return {
-                username: tweet.username,
-                avatar,
-                tweet: tweet.tweet,
-            };
-        });
-    return res.status(200).send(userTweets);
+        return {
+            username: tweet.username,
+            avatar,
+            tweet: tweet.tweet,
+        };
+    });
+    return res.status(200).send(lastTenAvatar);
 });
