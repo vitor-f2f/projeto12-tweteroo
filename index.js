@@ -29,9 +29,13 @@ app.post("/sign-up", (req, res) => {
         return res.status(400).send("Usuario ja existe");
     }
 
+    if (typeof username !== "string" || typeof avatar !== "string") {
+        return res.status(400).send("Todos os campos são obrigatórios!");
+    }
+
     const newUser = { username, avatar };
     userList.push(newUser);
-    return res.status(200).send("OK");
+    return res.status(201).send("OK");
 });
 
 app.post("/tweets", (req, res) => {
@@ -40,9 +44,12 @@ app.post("/tweets", (req, res) => {
     if (!userExists(username)) {
         return res.status(401).send("UNAUTHORIZED");
     }
+    if (!tweet || typeof tweet !== "string" || tweet == "") {
+        return res.status(401).send("Todos os campos são obrigatórios!");
+    }
     const newTweet = { username, tweet };
     tweetList.push(newTweet);
-    return res.status(200).send("OK");
+    return res.status(201).send("OK");
 });
 
 app.get("/tweets", (req, res) => {
