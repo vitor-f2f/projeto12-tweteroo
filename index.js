@@ -52,12 +52,8 @@ app.post("/tweets", (req, res) => {
     return res.status(201).send("OK");
 });
 
-app.get("/tweets", (req, res) => {
-    if (tweetList.length == 0) {
-        return res.status(200).send([]);
-    }
-    const lastTen = tweetList.slice(-10).reverse();
-    const lastTenAvatar = lastTen.map((tweet) => {
+function mapTweets(tweets) {
+    return tweets.map((tweet) => {
         const user = userList.find((user) => user.username === tweet.username);
         const avatar = user ? user.avatar : "";
 
@@ -67,5 +63,27 @@ app.get("/tweets", (req, res) => {
             tweet: tweet.tweet,
         };
     });
+}
+
+app.get("/tweets", (req, res) => {
+    if (tweetList.length == 0) {
+        return res.status(200).send([]);
+    }
+    const lastTen = tweetList.slice(-10).reverse();
+    const lastTenAvatar = mapTweets(lastTen);
     return res.status(200).send(lastTenAvatar);
+});
+
+app.get("/tweets/:username", (req, res) => {
+    const { username } = req.params;
+    const userTweets = tweetList
+        .filter((tweet) => tweet.username === username)
+        .reverse();
+
+    if (userTweets.length === 0) {
+        return res.status(200).send([]);
+    }
+
+    const userTweetsAvatar = mapTweets(userTweets);
+    return res.status(200).send(userTweetsAvatar);
 });
