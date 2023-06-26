@@ -45,7 +45,7 @@ app.post("/tweets", (req, res) => {
         return res.status(401).send("UNAUTHORIZED");
     }
     if (!tweet || typeof tweet !== "string" || tweet == "") {
-        return res.status(401).send("Todos os campos são obrigatórios!");
+        return res.status(400).send("Todos os campos são obrigatórios!");
     }
     const newTweet = { username, tweet };
     tweetList.push(newTweet);
@@ -56,6 +56,15 @@ app.get("/tweets", (req, res) => {
     if (tweetList.length == 0) {
         return res.status(200).send([]);
     }
+    const { page } = req.query;
+
+    const pageSize = 10;
+    const pageCount = tweetList.length / 10;
+    const pageCurrent = parseInt(page) || 1;
+
+    const start = (pageCurrent - 1) * pageSize;
+    const end = start + pageSize;
+
     const lastTen = tweetList.slice(-10).reverse();
     const lastTenAvatar = lastTen.map((tweet) => {
         const user = userList.find((user) => user.username === tweet.username);
@@ -68,4 +77,10 @@ app.get("/tweets", (req, res) => {
         };
     });
     return res.status(200).send(lastTenAvatar);
+});
+
+app.get("/tweets/:username", req, (res) => {
+    const { username } = req.query;
+    const userTweets = tweets.filter((tweet) => tweet.username === username);
+    res.send(userTweets);
 });
