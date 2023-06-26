@@ -56,8 +56,23 @@ app.get("/tweets", (req, res) => {
     if (tweetList.length == 0) {
         return res.status(200).send([]);
     }
-    const lastTen = tweetList.slice(-10).reverse();
-    const lastTenAvatar = lastTen.map((tweet) => {
+
+    const { page } = req.query;
+
+    const pageSize = 10;
+    const start = (page - 1) * pageSize;
+    const end = start + pageSize;
+
+    let tweetsCurrent = [];
+    if (start >= tweetList.length) {
+        tweetsCurrent = [];
+    } else if (end >= tweetList.length) {
+        tweetsCurrent = tweetList.slice(start);
+    } else {
+        tweetsCurrent = tweetList.slice(start, end);
+    }
+
+    const tweetsAvatar = tweetsCurrent.map((tweet) => {
         const user = userList.find((user) => user.username === tweet.username);
         const avatar = user ? user.avatar : "";
 
@@ -67,5 +82,5 @@ app.get("/tweets", (req, res) => {
             tweet: tweet.tweet,
         };
     });
-    return res.status(200).send(lastTenAvatar);
+    return res.status(200).send(tweetsAvatar);
 });
