@@ -53,15 +53,15 @@ app.post("/tweets", (req, res) => {
 });
 
 app.get("/tweets", (req, res) => {
-    if (tweetList.length == 0) {
+    const { page } = req.query;
+    const tweetsPerPage = 10;
+
+    if (tweetList.length === 0) {
         return res.status(200).send([]);
     }
 
-    const { page } = req.query;
-
-    const pageSize = 10;
-    const start = (page - 1) * pageSize;
-    const end = start + pageSize;
+    const start = (page - 1) * tweetsPerPage;
+    const end = start + tweetsPerPage;
 
     let tweetsCurrent = [];
     if (start >= tweetList.length) {
@@ -72,7 +72,7 @@ app.get("/tweets", (req, res) => {
         tweetsCurrent = tweetList.slice(start, end);
     }
 
-    const tweetsAvatar = tweetsCurrent.map((tweet) => {
+    const tweetsAvatar = tweetsCurrent.reverse().map((tweet) => {
         const user = userList.find((user) => user.username === tweet.username);
         const avatar = user ? user.avatar : "";
 
@@ -82,5 +82,6 @@ app.get("/tweets", (req, res) => {
             tweet: tweet.tweet,
         };
     });
+
     return res.status(200).send(tweetsAvatar);
 });
